@@ -9,7 +9,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.Data;
 
+@Data
 @Entity
 public class BagsSoldOut {
 
@@ -24,38 +26,18 @@ public class BagsSoldOut {
     private Double riceSoldQuantity;
     
     private Date date;
-
-	public Integer getSoldId() {
-		return soldId;
-	}
-
-	public void setSoldId(Integer soldId) {
-		this.soldId = soldId;
-	}
-
-	public RiceBags getRiceBags() {
-		return riceBags;
-	}
-
-	public void setRiceBags(RiceBags riceBags) {
-		this.riceBags = riceBags;
-	}
-
-	public Date getDate() {
-		return date;
-	}
-
-	public void setDate(Date date) {
-		this.date = date;
-	}
-
-	public Double getRiceSoldQuantity() {
-		return riceSoldQuantity;
-	}
-
-	public void setRiceSoldQuantity(Double riceSoldQuantity) {
-		this.riceSoldQuantity = riceSoldQuantity;
-	}  
+    
+    private Double pricePerKg;
+	
+	private Double ourPricePerKg;
+	
+	private Double totalSoldPrice;
+	
+	private Double ourTotalSoldPrice;
+	
+	private Double amtProfit;
+	
+	private Double amtProfitInPercentage;
 	
 }
 
