@@ -1,5 +1,6 @@
 package com.example.MyStock.ServiceImpl;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -7,6 +8,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.MyStock.DTO.BagsSoldOutDTO;
 import com.example.MyStock.DTO.DropDownDto;
 import com.example.MyStock.DTO.RiceBagDto;
 import com.example.MyStock.Entity.JpaResponse;
@@ -62,6 +64,8 @@ public class RiceBagServiceImpl implements RiceBagService {
 				riceBags.setPricePerKg(riceBagDto.getPricePerKg());
 				//riceBags.setRiceBagStatus(riceBagDto.getRiceBagStatus());
 				riceBags.setRiceBagDelete(riceBagDto.getRiceBagDelete());
+				riceBags.setOurPricePerKg(riceBagDto.getOurPricePerKg());
+				riceBags.setStockAvailable(riceBagDto.getStockAvailable());
 				RiceBags riceBags1 = riceBagRepository.saveAndFlush(riceBags);
 				if(riceBags1.getRiceBagId() > 0) {
 					jpaResponse.setReturnMsg("Rice Bag saved sussesfully");
@@ -93,6 +97,8 @@ public class RiceBagServiceImpl implements RiceBagService {
 				riceBagDto.setRiceBagCode(riceBags.getRiceBagCode());
 				riceBagDto.setRiceBagName(riceBags.getRiceBagName());
 				riceBagDto.setPricePerKg(riceBags.getPricePerKg());
+				riceBagDto.setOurPricePerKg(riceBags.getOurPricePerKg());
+				riceBagDto.setStockAvailable(riceBags.getStockAvailable());
 				riceBagsList.add(riceBagDto);
 			}
 		} catch (Exception e) {
@@ -121,6 +127,8 @@ public class RiceBagServiceImpl implements RiceBagService {
 				riceBags.setRiceBagCode(riceBagDto.getRiceBagCode());
 				riceBags.setRiceBagName(riceBagDto.getRiceBagName());
 				riceBags.setPricePerKg(riceBagDto.getPricePerKg());
+				riceBags.setOurPricePerKg(riceBagDto.getOurPricePerKg());
+				riceBags.setStockAvailable(riceBagDto.getStockAvailable());
 				//riceBags.setRiceBagStatus(riceBagDto.getRiceBagStatus());
 				riceBags.setRiceBagDelete(riceBagDto.getRiceBagDelete());
 				RiceBags riceBags1 = riceBagRepository.saveAndFlush(riceBags);
@@ -182,6 +190,48 @@ public class RiceBagServiceImpl implements RiceBagService {
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
+		return jpaResponse;
+	}
+	
+	@Override
+	public JpaResponse getStockReport(BagsSoldOutDTO bagsSoldOutDTO) {
+
+		JpaResponse jpaResponse = new JpaResponse();
+		List<BagsSoldOutDTO> listOfStocks = new ArrayList<>();;
+		int  riceBagId =0;
+		RiceBags riceBags  = new RiceBags();
+		Date date = null;
+		if(bagsSoldOutDTO.getRiceBagName() != null && bagsSoldOutDTO.getRiceBagName() != "") {
+			 riceBagId = Integer.parseInt(bagsSoldOutDTO.getRiceBagName());
+		}	
+		if(bagsSoldOutDTO.getDate() != null) {
+			date = bagsSoldOutDTO.getDate();
+		}
+		try {
+			if(riceBagId > 0) {
+				
+			}else {
+				if(date!= null) {
+					
+					
+					
+				}else {
+					List<RiceBags>   getAllRiceBagsList = riceBagRepository.findAllRiceBags();
+					if(getAllRiceBagsList != null && !getAllRiceBagsList.isEmpty()) {
+						for(int i =  0 ;i<getAllRiceBagsList.size() ;i++) {
+							riceBags = getAllRiceBagsList.get(i);
+							
+						}
+					}
+					List<Object> resultList = new ArrayList<>(getAllRiceBagsList);
+					jpaResponse.setResultList( resultList);
+				}
+				
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		
 		return jpaResponse;
 	}
 
