@@ -5,7 +5,7 @@ package com.example.MyStock.ServiceImpl;
 
 import java.sql.Date;
 import java.text.DecimalFormat;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -121,80 +121,7 @@ public class BagsSoldOutServiceImpl implements BagsSoldOutService {
 		    	 List<Object> resultList = new ArrayList<>(listOfBagsSoldOut);
 					jpaResponse.setResultList( resultList);
 	    	}else {
-	    		List<Integer> riceBagsIds = riceBagRepository.getAllRiceBagId();
-	    		List<Integer> soldRiceBagsIds = new ArrayList<>();
-	    		
-	    		List<BagsSoldOutDTO> listOfBagsSoldOut = new ArrayList<>();
-	    		List<Object[]> getTotalQuantityAndPrice =  bagsSoldOutRepository.getAllRiceBagsSoldOut(fromDate , toDate);
-	    		
-	    		double grandTotalQuantity = 0.0;
-	    		double grandTotalAmt =0.0;
-	    		double grandTotalOurAmt =0.0;
-	    		double grandTotalAmtProfit =0.0;
-	    		
-	    		
-	    		for(Object [] objects : getTotalQuantityAndPrice) {
-	    			 RiceBags riceBagName = (RiceBags) objects[0];
-	    			 Date date = (Date) objects[1];
-		    		 double amount = (double) objects[3];
-		    		 double quantity = (double) objects[2];
-		    		 double ourTotal = (double) objects[4];
-		    		 
-		    		 grandTotalQuantity+=quantity;
-		    		 grandTotalAmt+=amount;
-		    		 grandTotalOurAmt+=ourTotal;
-		    		 grandTotalAmtProfit+=(amount-ourTotal);
-		    		 
-		    		 bagsSoldOutDTO = new BagsSoldOutDTO();
-		    		 bagsSoldOutDTO.setRiceBags(riceBagName);
-		    		 bagsSoldOutDTO.setDate(date);
-		    		 bagsSoldOutDTO.setGrandTotalAmount(amount);
-		    		 bagsSoldOutDTO.setGrandTotalQuantity(quantity);
-		    		 bagsSoldOutDTO.setOurGrandTotalAmt(ourTotal);
-		    		 bagsSoldOutDTO.setTotalAmtProfit(amount-ourTotal);
-		    		 listOfBagsSoldOut.add(bagsSoldOutDTO);
-		    		 soldRiceBagsIds.add(riceBagName.getRiceBagId());
-		    	 }
-	    		
-	    		Set<Integer> set2 = new HashSet<>(soldRiceBagsIds);
-	    		;
-	            
-	            // Create a new list to store elements from list1 that are not in list2
-	            List<Integer> newList = new ArrayList<>();
-	            for (Integer num : riceBagsIds) {
-	                if (!set2.contains(num)) {
-	                    newList.add(num);
-	                }
-	            }
-
-	            if(newList != null && !newList.isEmpty()) {
-	            	
-	            	for(Integer id : newList) {
-	            		Optional<RiceBags> optional = riceBagRepository.findById(id);
-	            		if(optional.isPresent()) {
-	            			RiceBags riceBags = optional.get();
-	            			 bagsSoldOutDTO = new BagsSoldOutDTO();
-	    		    		 bagsSoldOutDTO.setRiceBags(riceBags);
-	    		    		 bagsSoldOutDTO.setDate(null);
-	    		    		 bagsSoldOutDTO.setGrandTotalAmount(0.00);
-	    		    		 bagsSoldOutDTO.setGrandTotalQuantity(0.00);
-	    		    		 bagsSoldOutDTO.setOurGrandTotalAmt(0.00);
-	    		    		 bagsSoldOutDTO.setTotalAmtProfit(0.00);
-	    		    		 listOfBagsSoldOut.add(bagsSoldOutDTO);
-	            		}
-	            	}
-	            }
-	    		
-	    		 List<Object> resultList = new ArrayList<>(listOfBagsSoldOut);
-					jpaResponse.setResultList( resultList);
-					
-					bagsSoldOutDTO = new BagsSoldOutDTO();
-		    		 bagsSoldOutDTO.setGrandTotalAmount(grandTotalAmt);
-		    		 bagsSoldOutDTO.setGrandTotalQuantity(grandTotalQuantity);
-		    		 bagsSoldOutDTO.setOurGrandTotalAmt(grandTotalOurAmt);
-		    		 bagsSoldOutDTO.setTotalAmtProfit(grandTotalAmtProfit);
-		    		 
-		    		 jpaResponse.setResults(bagsSoldOutDTO);
+	    		jpaResponse = getEachRiceBagsDetails(fromDate , toDate);
 	    	}
 			
 		} catch (Exception e) {
@@ -202,6 +129,132 @@ public class BagsSoldOutServiceImpl implements BagsSoldOutService {
 		}
 	    
 	    return jpaResponse;
+	}
+	
+	@Override
+	public JpaResponse getTotalRiceBagsPricePerDay() {
+		JpaResponse jpaResponse = new JpaResponse();
+		List<BagsSoldOutDTO> listOfBagsSoldOut = new ArrayList<>();
+		
+		LocalDate localDate = LocalDate.now().minusDays(4);
+		Date date = Date.valueOf(localDate);
+		BagsSoldOutDTO bagsSoldOutDTO = new BagsSoldOutDTO();
+		try {
+			List<Object[]> getTotalQuantityAndPrice =  bagsSoldOutRepository.getSumOfBagsSoldForLast5Days(date);
+			for(Object[] object : getTotalQuantityAndPrice) {
+				bagsSoldOutDTO = new BagsSoldOutDTO();
+	    		 bagsSoldOutDTO.setGrandTotalAmount((double) object[0]);
+	    		 bagsSoldOutDTO.setDate((Date) object[1]);
+	    		 listOfBagsSoldOut.add(bagsSoldOutDTO);
+			}
+			 List<Object> resultList = new ArrayList<>(listOfBagsSoldOut);
+				jpaResponse.setResultList( resultList);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		
+		return jpaResponse;
+	}
+	
+	public JpaResponse getEachRiceBagsDetails(Date fromDate , Date toDate) {
+		
+		JpaResponse jpaResponse =  new JpaResponse();
+		 BagsSoldOutDTO bagsSoldOutDTO = new BagsSoldOutDTO();
+		 
+		 LocalDate localDate = LocalDate.now();
+		 if(fromDate == null) {
+			  fromDate = Date.valueOf(localDate);
+		 }
+		 if(toDate == null) {
+			  toDate = Date.valueOf(localDate);
+		 }
+		 
+		try {
+    		List<Integer> riceBagsIds = riceBagRepository.getAllRiceBagId();
+    		List<Integer> soldRiceBagsIds = new ArrayList<>();
+    		
+    		List<BagsSoldOutDTO> listOfBagsSoldOut = new ArrayList<>();
+    		List<Object[]> getTotalQuantityAndPrice =  bagsSoldOutRepository.getAllRiceBagsSoldOut(fromDate , toDate);
+    		
+    		double grandTotalQuantity = 0.0;
+    		double grandTotalAmt =0.0;
+    		double grandTotalOurAmt =0.0;
+    		double grandTotalAmtProfit =0.0;
+    		
+    		
+    		for(Object [] objects : getTotalQuantityAndPrice) {
+    			 RiceBags riceBagName = (RiceBags) objects[0];
+    			 Date date = (Date) objects[1];
+	    		 double amount = (double) objects[3];
+	    		 double quantity = (double) objects[2];
+	    		 double ourTotal = (double) objects[4];
+	    		 
+	    		 grandTotalQuantity+=quantity;
+	    		 grandTotalAmt+=amount;
+	    		 grandTotalOurAmt+=ourTotal;
+	    		 grandTotalAmtProfit+=(amount-ourTotal);
+	    		 
+	    		 bagsSoldOutDTO = new BagsSoldOutDTO();
+	    		 bagsSoldOutDTO.setRiceBags(riceBagName);
+	    		 bagsSoldOutDTO.setDate(date);
+	    		 bagsSoldOutDTO.setGrandTotalAmount(amount);
+	    		 bagsSoldOutDTO.setGrandTotalQuantity(quantity);
+	    		 bagsSoldOutDTO.setOurGrandTotalAmt(ourTotal);
+	    		 bagsSoldOutDTO.setTotalAmtProfit(amount-ourTotal);
+	    		 listOfBagsSoldOut.add(bagsSoldOutDTO);
+	    		 soldRiceBagsIds.add(riceBagName.getRiceBagId());
+	    	 }
+    		
+    		Set<Integer> set2 = new HashSet<>(soldRiceBagsIds);
+    		;
+            
+            // Create a new list to store elements from list1 that are not in list2
+            List<Integer> newList = new ArrayList<>();
+            for (Integer num : riceBagsIds) {
+                if (!set2.contains(num)) {
+                    newList.add(num);
+                }
+            }
+
+            if(newList != null && !newList.isEmpty()) {
+            	
+            	for(Integer id : newList) {
+            		Optional<RiceBags> optional = riceBagRepository.findById(id);
+            		if(optional.isPresent()) {
+            			RiceBags riceBags = optional.get();
+            			 bagsSoldOutDTO = new BagsSoldOutDTO();
+    		    		 bagsSoldOutDTO.setRiceBags(riceBags);
+    		    		 bagsSoldOutDTO.setDate(null);
+    		    		 bagsSoldOutDTO.setGrandTotalAmount(0.00);
+    		    		 bagsSoldOutDTO.setGrandTotalQuantity(0.00);
+    		    		 bagsSoldOutDTO.setOurGrandTotalAmt(0.00);
+    		    		 bagsSoldOutDTO.setTotalAmtProfit(0.00);
+    		    		 listOfBagsSoldOut.add(bagsSoldOutDTO);
+            		}
+            	}
+            }
+    		
+    		 List<Object> resultList = new ArrayList<>(listOfBagsSoldOut);
+				jpaResponse.setResultList( resultList);
+				
+				bagsSoldOutDTO = new BagsSoldOutDTO();
+	    		 bagsSoldOutDTO.setGrandTotalAmount(grandTotalAmt);
+	    		 bagsSoldOutDTO.setGrandTotalQuantity(grandTotalQuantity);
+	    		 bagsSoldOutDTO.setOurGrandTotalAmt(grandTotalOurAmt);
+	    		 bagsSoldOutDTO.setTotalAmtProfit(grandTotalAmtProfit);
+	    		 
+	    		 jpaResponse.setResults(bagsSoldOutDTO);
+    	
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		return jpaResponse;
+	}
+
+	@Override
+	public JpaResponse getEachRiceBagsDetails() {
+		return getEachRiceBagsDetails(null, null);
 	}
 
 }

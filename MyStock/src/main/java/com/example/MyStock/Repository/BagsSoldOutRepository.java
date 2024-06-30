@@ -26,5 +26,8 @@ public interface BagsSoldOutRepository extends JpaRepository<BagsSoldOut, Intege
 			+ "group by riceBags.riceBagId")
 	List<Object[]> getAllRiceBagsSoldOut(@Param("fromDate") Date fromDate, @Param("toDate") Date toDate);
 	
+	@Query("select sum(totalSoldPrice),date from BagsSoldOut where  date >= :date group by date")
+	List<Object[]> getSumOfBagsSoldForLast5Days(@Param("date") Date date);
+	
 
 }
