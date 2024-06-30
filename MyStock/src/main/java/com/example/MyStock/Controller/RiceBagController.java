@@ -11,12 +11,16 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.MyStock.Entity.JpaResponse;
 import com.example.MyStock.Service.RiceBagService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.springframework.web.bind.annotation.*;
 
 import com.example.MyStock.DTO.BagsSoldOutDTO;
 import com.example.MyStock.DTO.RiceBagDto;
 @RestController
 @RequestMapping("/ricebag")
+@Tag(name = "Rice Bags Apis", description = "Api's to Save and Delete and Get the Rice bags")
 public class RiceBagController {
 	
 	private RiceBagService riceBagService;
@@ -31,6 +35,7 @@ public class RiceBagController {
 
 
 	@GetMapping("/getAllRiceBags")
+	@Operation(summary = "GET Operation" , description = "This Api Get all the details of teh rice bags")
 	public ResponseEntity<Object> getAllRiceBags(){
 		
 		JpaResponse jpaResponse = riceBagService.getAllRiceBags();
@@ -38,6 +43,7 @@ public class RiceBagController {
 	}
 	
 	@PostMapping("/saveRiceBag")
+	@Operation(summary = "POST Operation" , description = "This Method will add the new rice bags")
 	public ResponseEntity<Object> saveRiceBag(@RequestBody  RiceBagDto riceBagDto){
 		JpaResponse jpaResponse  = new JpaResponse();
 		System.out.println("INSIDE saveRiceBag METHOD");
@@ -46,12 +52,14 @@ public class RiceBagController {
 	}
 	
 	@GetMapping("/getRiceBagById/{riceBagId}")
+	@Operation(summary = "GET Operation" , description = "This Api Get a particular details of the rice bags")
 	public ResponseEntity<Object> getRiceBagById(@PathVariable("riceBagId") String riceBagId){
 		JpaResponse jpaResponse = riceBagService.getRiceBagById(riceBagId);
 		return new ResponseEntity<>(jpaResponse , HttpStatus.OK);
 	}
 	
 	@PostMapping("/updateRiceBag")
+	@Operation(summary = "POST Operation" , description = "This Method will updatet the existing  rice bags")
 	public ResponseEntity<Object> updateRiceBag(@RequestBody  RiceBagDto riceBagDto){
 		JpaResponse jpaResponse  = new JpaResponse();
 		System.out.println("INSIDE updateRiceBag METHOD");
@@ -60,6 +68,7 @@ public class RiceBagController {
 	}
 	
 	@PostMapping("/deleteRiceBag/{riceBagId}")
+	@Operation(summary = "POST Operation" , description = "This Method will delete the  rice bags")
 	public ResponseEntity<Object> deleteRiceBag(@PathVariable("riceBagId") String riceBagId){
 		JpaResponse jpaResponse  = new JpaResponse();
 		System.out.println("INSIDE deleteRiceBag METHOD");

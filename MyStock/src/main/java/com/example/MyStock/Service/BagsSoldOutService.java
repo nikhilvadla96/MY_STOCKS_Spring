@@ -10,4 +10,8 @@ public interface BagsSoldOutService {
 	
 	public JpaResponse getRiceBagsSoldOut(BagsSoldOutDTO bagsSoldOutDTO );
 
+	public JpaResponse getTotalRiceBagsPricePerDay();
+
+	public JpaResponse getEachRiceBagsDetails();
+
 }
