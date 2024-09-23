@@ -1,23 +1,20 @@
 package com.example.MyStock.Entity;
 
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import lombok.Data;
 
 @Entity
-@Data
-public class UsersDetails {
-
+public class Expenses {
+	
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer userId;
+	private  int expenseId;
 	
-	private String email;
+	private String expenseName;
 	
-	private String password;
-	
-	private int sessionExpire;
+	private double amount;
+
 }
